@@ -1,0 +1,54 @@
+# Python 环境与缓存
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+
+# 本机配置和秘密；示例文件允许共享
+.env
+.env.*
+!.env.example
+configs/*.local.*
+*.pem
+*.key
+credentials*.json
+
+# 数据、权重、训练产物，仅保留目录占位
+/data/*
+!/data/.gitkeep
+/models/*
+!/models/.gitkeep
+/outputs/*
+!/outputs/.gitkeep
+/runs/
+/checkpoints/
+/wandb/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.h5
+*.hdf5
+*.mp4
+*.avi
+*.mov
+*.npy
+*.npz
+*.log
+
+# 编辑器与系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 导入备份
+.scaffold-backups/

@@ -1,0 +1,5 @@
+{
+  "data_root": "/absolute/path/to/authorized-dataset",
+  "model_root": "models",
+  "output_root": "outputs"
+}
