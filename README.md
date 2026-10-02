@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 联邦学习驾驶员行为监测隐私保护系统
 
 吉利资助的学生创新项目，目标是探索驾驶员行为监测与联邦学习隐私保护，并逐步验证实际应用可行性。
@@ -64,7 +63,3 @@ https://github.com/huang-xin-ning/federated-driving-system
 确认数据授权和伙伴硬件 → 确定首个行为识别任务 → 数据检查与按驾驶员划分 → 单机基线 → 联邦基线 → 隐私机制及评估 → 演示与实际场景验证。
 
 尚无应用启动命令。请勿使用虚构的 `app.py` 或训练入口。
-=======
-# federated-driving-system
-Federated learning based driving system
->>>>>>> origin/main
