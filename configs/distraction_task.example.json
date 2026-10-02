@@ -1,0 +1,25 @@
+{
+  "task_name": "dmd_safe_drive_vs_distraction",
+  "source_dataset": "DMD Driver Monitoring Dataset",
+  "label_mapping": {
+    "driver_actions/safe_drive": "safe_drive",
+    "driver_actions/drinking": "distraction",
+    "driver_actions/radio": "distraction",
+    "driver_actions/reach_side": "distraction",
+    "driver_actions/reach_backseat": "distraction",
+    "driver_actions/phonecall_left": "distraction",
+    "driver_actions/phonecall_right": "distraction",
+    "driver_actions/texting_left": "distraction",
+    "driver_actions/texting_right": "distraction",
+    "driver_actions/hair_and_makeup": "distraction",
+    "driver_actions/talking_to_passenger": "distraction"
+  },
+  "excluded_source_labels": [
+    "driver_actions/unclassified"
+  ],
+  "split_policy": {
+    "group_by": "driver_id",
+    "minimum_distinct_groups": 3,
+    "note": "Do not split neighboring frames from one driver across train, validation, and test."
+  }
+}
