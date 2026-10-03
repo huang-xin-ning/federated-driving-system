@@ -97,3 +97,20 @@ python scripts/plan_group_split.py outputs/authorized_manifest.csv configs/distr
 - 当前 pilot 只有 1 个驾驶员，因此运行它会明确报出组数不足。
 
 只有在数据授权已确认、拥有至少 3 个不同驾驶员组、清单含有两个目标标签，并且台式机硬件与依赖环境已核对后，才进入下一阶段：单机基线训练设计。
+
+
+## 8 写出本地训练 验证 测试清单
+
+只在多驾驶员数据通过第 6 步后执行：
+
+```bash
+python scripts/write_group_split_manifests.py outputs/authorized_manifest.csv configs/distraction_task.example.json 20261003 outputs/authorized_splits
+```
+
+解释：
+
+- 本命令读取已通过视频边界过滤的本地清单。
+- 它按驾驶员 ID 生成互不重叠的 `train.csv`、`validation.csv` 和 `test.csv`。
+- 每个拆分都必须含有任务所需的两个目标标签；缺少标签时工具会报错，不会生成不完整的实验清单。
+- `outputs/authorized_splits` 是本地输出目录，Git 会忽略其中的 CSV 文件。
+- 命令只写本地 CSV，不读取视频，不训练模型。
