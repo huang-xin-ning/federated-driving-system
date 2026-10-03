@@ -80,4 +80,20 @@ reasons: ('requires 3 driver groups, found 1',)
 Training: NOT STARTED
 ```
 
+## 7 规划驾驶员级训练 验证 测试组
+
+多驾驶员数据通过训练前条件检查后，再执行：
+
+```bash
+python scripts/plan_group_split.py outputs/authorized_manifest.csv configs/distraction_task.example.json 20261003
+```
+
+解释：
+
+- `outputs/authorized_manifest.csv` 是未来多驾驶员数据经视频边界过滤后的本地清单示例，不是当前 pilot 文件。
+- `configs/distraction_task.example.json` 提供至少 3 个驾驶员组的规则。
+- `20261003` 是记录在实验日志中的随机种子；相同清单和种子会得到相同的组分配。
+- 输出仅列出训练、验证、测试对应的驾驶员 ID，不写出新清单、不读取视频，也不启动训练。
+- 当前 pilot 只有 1 个驾驶员，因此运行它会明确报出组数不足。
+
 只有在数据授权已确认、拥有至少 3 个不同驾驶员组、清单含有两个目标标签，并且台式机硬件与依赖环境已核对后，才进入下一阶段：单机基线训练设计。
