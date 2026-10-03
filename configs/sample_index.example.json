@@ -1,0 +1,7 @@
+{
+  "video_view": "rgb_body",
+  "frame_stride": 15,
+  "minimum_interval_frames": 15,
+  "overlap_policy": "exclude_conflicting_target_labels",
+  "note": "Use rgb_body for the first binary task; verify reach actions with short frame sequences or rgb_hands before treating labels as visually confirmed. Video extraction and training remain disabled."
+}
