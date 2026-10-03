@@ -1,0 +1,10 @@
+{
+  "experiment_name": "dmd_driver_grouped_federated_baseline",
+  "task_name": "dmd_safe_drive_vs_distraction",
+  "dataset_version": "record-after-authorization",
+  "manifest_identifier": "record-local-manifest-hash-after-authorization",
+  "data_use_status": "pending_authorization",
+  "split_seed": 20261004,
+  "minimum_federated_clients": 2,
+  "notes": "Template only. Replace dataset version and manifest identifier after data authorization and multi-driver manifest validation. This file does not start training."
+}
