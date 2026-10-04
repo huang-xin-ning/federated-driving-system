@@ -7,7 +7,8 @@ from dataclasses import dataclass
 from .client_plan import plan_federated_clients
 from .experiment_plan import ExperimentPlan
 from .group_split import plan_group_split
-from .manifest import ManifestSummary
+from .manifest import ManifestRow, summarize_manifest
+from .split_manifest import partition_rows, validate_split_coverage
 from .task_spec import TaskSpec
 
 
@@ -20,9 +21,10 @@ class ExperimentReadinessReport:
 
 
 def assess_experiment_readiness(
-    summary: ManifestSummary, task: TaskSpec, plan: ExperimentPlan
+    rows: tuple[ManifestRow, ...], task: TaskSpec, plan: ExperimentPlan
 ) -> ExperimentReadinessReport:
     """Assess metadata prerequisites without reading videos or training."""
+    summary = summarize_manifest(rows)
     reasons: list[str] = []
     if not plan.training_permitted_by_data_status:
         reasons.append(f"data use status is {plan.data_use_status.value}, not authorized for training")
@@ -40,6 +42,7 @@ def assess_experiment_readiness(
         try:
             split_plan = plan_group_split(summary.driver_ids, plan.split_seed)
             plan_federated_clients(split_plan, plan.minimum_federated_clients)
+            validate_split_coverage(partition_rows(rows, split_plan), task.target_labels)
         except ValueError as error:
             reasons.append(str(error))
 

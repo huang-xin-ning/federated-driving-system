@@ -11,7 +11,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from federated_driving.experiment_plan import load_experiment_plan
 from federated_driving.experiment_readiness import assess_experiment_readiness
-from federated_driving.manifest import load_manifest, summarize_manifest
+from federated_driving.manifest import load_manifest
 from federated_driving.task_spec import load_task_spec
 
 
@@ -24,7 +24,7 @@ def main() -> int:
         )
         return 2
     report = assess_experiment_readiness(
-        summarize_manifest(load_manifest(sys.argv[1])),
+        load_manifest(sys.argv[1]),
         load_task_spec(sys.argv[2]),
         load_experiment_plan(sys.argv[3]),
     )

@@ -7,7 +7,7 @@ import unittest
 from federated_driving.experiment_plan import ExperimentPlan
 from federated_driving.domain import DataUseStatus
 from federated_driving.experiment_readiness import assess_experiment_readiness
-from federated_driving.manifest import ManifestSummary
+from federated_driving.manifest import ManifestRow
 from federated_driving.task_spec import TaskSpec
 
 
@@ -37,27 +37,26 @@ class ExperimentReadinessTests(unittest.TestCase):
             "test only",
         )
 
-    def test_allows_five_group_authorized_plan(self) -> None:
-        summary = ManifestSummary(
-            10,
-            {"safe_drive": 5, "distraction": 5},
-            ("a", "b", "c", "d", "e"),
+    def rows(self, labels_by_driver: dict[str, tuple[str, ...]]) -> tuple[ManifestRow, ...]:
+        return tuple(
+            ManifestRow("session", "annotations.json", "video.mp4", driver, frame, label)
+            for driver, labels in labels_by_driver.items()
+            for frame, label in enumerate(labels)
         )
 
-        report = assess_experiment_readiness(summary, self.task, self.plan())
+    def test_allows_five_group_authorized_plan(self) -> None:
+        rows = self.rows({driver: ("safe_drive", "distraction") for driver in "abcde"})
+
+        report = assess_experiment_readiness(rows, self.task, self.plan())
 
         self.assertTrue(report.ready)
         self.assertEqual(report.reasons, ())
 
     def test_blocks_pending_authorization_and_insufficient_groups(self) -> None:
-        summary = ManifestSummary(
-            10,
-            {"safe_drive": 5, "distraction": 5},
-            ("a",),
-        )
+        rows = self.rows({"a": ("safe_drive", "distraction")})
 
         report = assess_experiment_readiness(
-            summary, self.task, self.plan(DataUseStatus.PENDING_AUTHORIZATION)
+            rows, self.task, self.plan(DataUseStatus.PENDING_AUTHORIZATION)
         )
 
         self.assertFalse(report.ready)
@@ -65,28 +64,34 @@ class ExperimentReadinessTests(unittest.TestCase):
         self.assertIn("task requires 3 driver groups, found 1", report.reasons)
 
     def test_blocks_three_groups_when_two_clients_are_required(self) -> None:
-        summary = ManifestSummary(
-            10,
-            {"safe_drive": 5, "distraction": 5},
-            ("a", "b", "c"),
-        )
+        rows = self.rows({driver: ("safe_drive", "distraction") for driver in "abc"})
 
-        report = assess_experiment_readiness(summary, self.task, self.plan())
+        report = assess_experiment_readiness(rows, self.task, self.plan())
 
         self.assertFalse(report.ready)
         self.assertIn("requires at least 2 training driver groups, found 1", report.reasons)
 
     def test_blocks_task_mismatch(self) -> None:
-        summary = ManifestSummary(
-            10,
-            {"safe_drive": 5, "distraction": 5},
-            ("a", "b", "c", "d", "e"),
-        )
+        rows = self.rows({driver: ("safe_drive", "distraction") for driver in "abcde"})
         plan = ExperimentPlan(
             "demo", "wrong-task", "v1", "sha256:x", DataUseStatus.AUTHORIZED_RESEARCH, 7, 2, "test"
         )
 
-        report = assess_experiment_readiness(summary, self.task, plan)
+        report = assess_experiment_readiness(rows, self.task, plan)
 
         self.assertFalse(report.ready)
         self.assertIn("experiment task wrong-task does not match task spec binary-task", report.reasons)
+
+    def test_blocks_split_missing_a_label_even_when_manifest_has_both(self) -> None:
+        rows = self.rows({
+            "a": ("safe_drive", "distraction"),
+            "b": ("safe_drive", "distraction"),
+            "c": ("safe_drive", "distraction"),
+            "d": ("safe_drive", "distraction"),
+            "e": ("safe_drive",),
+        })
+
+        report = assess_experiment_readiness(rows, self.task, self.plan())
+
+        self.assertFalse(report.ready)
+        self.assertTrue(any("missing target labels" in reason for reason in report.reasons))
