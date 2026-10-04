@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 from federated_driving.experiment_plan import load_experiment_plan
+from federated_driving.domain import DataUseStatus
 
 
 class ExperimentPlanTests(unittest.TestCase):
@@ -34,13 +35,33 @@ class ExperimentPlanTests(unittest.TestCase):
 
     def test_accepts_authorized_plan(self) -> None:
         payload = self.payload()
-        payload["data_use_status"] = "authorized"
+        payload["data_use_status"] = "authorized_research"
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "plan.json"
             path.write_text(json.dumps(payload), encoding="utf-8")
             plan = load_experiment_plan(path)
 
         self.assertTrue(plan.training_permitted_by_data_status)
+        self.assertEqual(plan.data_use_status, DataUseStatus.AUTHORIZED_RESEARCH)
+
+    def test_rejects_ambiguous_authorized_status(self) -> None:
+        payload = self.payload()
+        payload["data_use_status"] = "authorized"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "plan.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "data_use_status"):
+                load_experiment_plan(path)
+
+    def test_prohibited_plan_blocks_training(self) -> None:
+        payload = self.payload()
+        payload["data_use_status"] = "prohibited"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "plan.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            plan = load_experiment_plan(path)
+
+        self.assertFalse(plan.training_permitted_by_data_status)
 
     def test_rejects_single_federated_client(self) -> None:
         payload = self.payload()

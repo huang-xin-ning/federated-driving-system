@@ -5,7 +5,8 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
+
+from .domain import DataUseStatus
 
 
 @dataclass(frozen=True)
@@ -16,14 +17,14 @@ class ExperimentPlan:
     task_name: str
     dataset_version: str
     manifest_identifier: str
-    data_use_status: str
+    data_use_status: DataUseStatus
     split_seed: int
     minimum_federated_clients: int
     notes: str
 
     @property
     def training_permitted_by_data_status(self) -> bool:
-        return self.data_use_status == "authorized"
+        return self.data_use_status.training_allowed
 
 
 def load_experiment_plan(path: str | Path) -> ExperimentPlan:
@@ -49,10 +50,11 @@ def _required_string(value: object, name: str) -> str:
     return value
 
 
-def _status(value: object) -> str:
-    if value not in {"pending_authorization", "authorized", "prohibited"}:
-        raise ValueError("data_use_status must be pending_authorization, authorized, or prohibited")
-    return str(value)
+def _status(value: object) -> DataUseStatus:
+    try:
+        return DataUseStatus(value)
+    except ValueError as error:
+        raise ValueError("data_use_status must be a recognized data-use status") from error
 
 
 def _integer(value: object, name: str) -> int:

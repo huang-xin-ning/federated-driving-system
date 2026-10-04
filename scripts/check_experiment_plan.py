@@ -23,7 +23,7 @@ def main() -> int:
     print(f"Manifest identifier: {plan.manifest_identifier}")
     print(f"Split seed: {plan.split_seed}")
     print(f"Minimum federated clients: {plan.minimum_federated_clients}")
-    print(f"Data use status: {plan.data_use_status}")
+    print(f"Data use status: {plan.data_use_status.value}")
     print("Training: NOT STARTED")
     print("Data authorization gate: PASSED" if plan.training_permitted_by_data_status else "Data authorization gate: BLOCKED")
     return 0

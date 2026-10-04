@@ -25,7 +25,7 @@ def assess_experiment_readiness(
     """Assess metadata prerequisites without reading videos or training."""
     reasons: list[str] = []
     if not plan.training_permitted_by_data_status:
-        reasons.append(f"data use status is {plan.data_use_status}, not authorized")
+        reasons.append(f"data use status is {plan.data_use_status.value}, not authorized for training")
     if plan.task_name != task.task_name:
         reasons.append(f"experiment task {plan.task_name} does not match task spec {task.task_name}")
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 from federated_driving.experiment_plan import ExperimentPlan
+from federated_driving.domain import DataUseStatus
 from federated_driving.experiment_readiness import assess_experiment_readiness
 from federated_driving.manifest import ManifestSummary
 from federated_driving.task_spec import TaskSpec
@@ -22,7 +23,9 @@ class ExperimentReadinessTests(unittest.TestCase):
             "disjoint driver groups",
         )
 
-    def plan(self, status: str = "authorized", minimum_clients: int = 2) -> ExperimentPlan:
+    def plan(
+        self, status: DataUseStatus = DataUseStatus.AUTHORIZED_RESEARCH, minimum_clients: int = 2
+    ) -> ExperimentPlan:
         return ExperimentPlan(
             "demo",
             "binary-task",
@@ -53,10 +56,12 @@ class ExperimentReadinessTests(unittest.TestCase):
             ("a",),
         )
 
-        report = assess_experiment_readiness(summary, self.task, self.plan("pending_authorization"))
+        report = assess_experiment_readiness(
+            summary, self.task, self.plan(DataUseStatus.PENDING_AUTHORIZATION)
+        )
 
         self.assertFalse(report.ready)
-        self.assertIn("data use status is pending_authorization, not authorized", report.reasons)
+        self.assertIn("data use status is pending_authorization, not authorized for training", report.reasons)
         self.assertIn("task requires 3 driver groups, found 1", report.reasons)
 
     def test_blocks_three_groups_when_two_clients_are_required(self) -> None:
@@ -77,7 +82,9 @@ class ExperimentReadinessTests(unittest.TestCase):
             {"safe_drive": 5, "distraction": 5},
             ("a", "b", "c", "d", "e"),
         )
-        plan = ExperimentPlan("demo", "wrong-task", "v1", "sha256:x", "authorized", 7, 2, "test")
+        plan = ExperimentPlan(
+            "demo", "wrong-task", "v1", "sha256:x", DataUseStatus.AUTHORIZED_RESEARCH, 7, 2, "test"
+        )
 
         report = assess_experiment_readiness(summary, self.task, plan)
 
